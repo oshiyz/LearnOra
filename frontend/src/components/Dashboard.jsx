@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -12,40 +12,34 @@ const Dashboard = () => {
     navigate('/login');
   };
 
+  const handleOverviewClick = () => {
+    navigate('/dashboard/overview');
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-sidebar">
-        <div className="user-profile">
-          <div className="user-avatar">
-            {user.firstName?.[0]}{user.lastName?.[0]}
-          </div>
-          <div className="user-info">
-            <h3>{user.firstName} {user.lastName}</h3>
-            <p>{user.email}</p>
-          </div>
-        </div>
-        
         <nav className="dashboard-nav">
-          <a href="#overview" className="nav-item active">
+          <Link to="/dashboard/overview" className="nav-item active" onClick={handleOverviewClick}>
             <i className="fas fa-home"></i>
             Overview
-          </a>
-          <a href="#my-courses" className="nav-item">
+          </Link>
+          <Link to="/dashboard/courses" className="nav-item">
             <i className="fas fa-book"></i>
             My Courses
-          </a>
-          <a href="#progress" className="nav-item">
+          </Link>
+          <Link to="/dashboard/progress" className="nav-item">
             <i className="fas fa-chart-line"></i>
             Progress
-          </a>
-          <a href="#certificates" className="nav-item">
+          </Link>
+          <Link to="/dashboard/certificates" className="nav-item">
             <i className="fas fa-certificate"></i>
             Certificates
-          </a>
-          <a href="#settings" className="nav-item">
+          </Link>
+          <Link to="/dashboard/settings" className="nav-item">
             <i className="fas fa-cog"></i>
             Settings
-          </a>
+          </Link>
         </nav>
 
         <button onClick={handleLogout} className="logout-button">
