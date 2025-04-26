@@ -1,160 +1,221 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getUserProfile, updateUserProfile, changePassword } from '../services/userService';
 import './Settings.css';
 
 const Settings = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const [activeTab, setActiveTab] = useState('view');
-  const [formData, setFormData] = useState({
-    firstName: user.firstName || '',
-    lastName: user.lastName || '',
-    email: user.email || '',
-    phone: user.phone || '',
+  const [activeTab, setActiveTab] = useState('account');
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Form states
+  const [profileForm, setProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      setLoading(true);
+      const userData = await getUserProfile();
+      setUser(userData);
+      setProfileForm({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phone: userData.phone || ''
+      });
+      setError(null);
+    } catch (err) {
+      setError('Failed to load user profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    // TODO: Implement API call to update profile
-    console.log('Updating profile:', formData);
+    try {
+      setLoading(true);
+      const updatedUser = await updateUserProfile(profileForm);
+      setUser(updatedUser);
+      setSuccess('Profile updated successfully');
+      setError(null);
+    } catch (err) {
+      setError(err.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    // TODO: Implement API call to change password
-    console.log('Changing password:', formData);
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError('New passwords do not match');
+      return;
+    }
+    try {
+      setLoading(true);
+      await changePassword(passwordForm);
+      setSuccess('Password changed successfully');
+      setError(null);
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (err) {
+      setError(err.message || 'Failed to change password');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading && !user) {
+    return <div className="settings-container">Loading...</div>;
+  }
 
   return (
     <div className="settings-container">
       <div className="settings-header">
-        <h2>Account Settings</h2>
-        <div className="settings-tabs">
-          <button 
-            className={`tab-button ${activeTab === 'view' ? 'active' : ''}`}
-            onClick={() => setActiveTab('view')}
-          >
-            Account Details
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'edit' ? 'active' : ''}`}
-            onClick={() => setActiveTab('edit')}
-          >
-            Edit Profile
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'password' ? 'active' : ''}`}
-            onClick={() => setActiveTab('password')}
-          >
-            Change Password
-          </button>
-        </div>
+        <h1>Settings</h1>
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
+
+      <div className="settings-tabs">
+        <button
+          className={`tab-button ${activeTab === 'account' ? 'active' : ''}`}
+          onClick={() => setActiveTab('account')}
+        >
+          Account Details
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          Edit Profile
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'password' ? 'active' : ''}`}
+          onClick={() => setActiveTab('password')}
+        >
+          Change Password
+        </button>
       </div>
 
       <div className="settings-content">
-        {activeTab === 'view' && (
+        {activeTab === 'account' && (
           <div className="account-details">
             <div className="account-avatar">
-              {user.firstName?.[0]}{user.lastName?.[0]}
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
             </div>
             <div className="account-info">
               <div className="info-group">
-                <label>Full Name</label>
-                <p>{user.firstName} {user.lastName}</p>
+                <label>Name</label>
+                <p>{user?.firstName} {user?.lastName}</p>
               </div>
               <div className="info-group">
                 <label>Email</label>
-                <p>{user.email}</p>
+                <p>{user?.email}</p>
               </div>
               <div className="info-group">
                 <label>Phone</label>
-                <p>{user.phone || 'Not provided'}</p>
+                <p>{user?.phone || 'Not set'}</p>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'edit' && (
-          <form onSubmit={handleProfileUpdate} className="settings-form">
+        {activeTab === 'profile' && (
+          <form className="settings-form" onSubmit={handleProfileUpdate}>
             <div className="form-group">
               <label>First Name</label>
               <input
                 type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
+                value={profileForm.firstName}
+                onChange={(e) => setProfileForm({ ...profileForm, firstName: e.target.value })}
+                required
               />
             </div>
             <div className="form-group">
               <label>Last Name</label>
               <input
                 type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
+                value={profileForm.lastName}
+                onChange={(e) => setProfileForm({ ...profileForm, lastName: e.target.value })}
+                required
               />
             </div>
             <div className="form-group">
               <label>Email</label>
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
+                value={profileForm.email}
+                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                required
               />
             </div>
             <div className="form-group">
               <label>Phone</label>
               <input
                 type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
+                value={profileForm.phone}
+                onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
               />
             </div>
-            <button type="submit" className="save-button">Save Changes</button>
+            <button type="submit" className="save-button" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
           </form>
         )}
 
         {activeTab === 'password' && (
-          <form onSubmit={handlePasswordChange} className="settings-form">
+          <form className="settings-form" onSubmit={handlePasswordChange}>
             <div className="form-group">
               <label>Current Password</label>
               <input
                 type="password"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleInputChange}
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                required
               />
             </div>
             <div className="form-group">
               <label>New Password</label>
               <input
                 type="password"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleInputChange}
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                required
               />
             </div>
             <div className="form-group">
               <label>Confirm New Password</label>
               <input
                 type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                required
               />
             </div>
-            <button type="submit" className="save-button">Change Password</button>
+            <button type="submit" className="save-button" disabled={loading}>
+              {loading ? 'Changing Password...' : 'Change Password'}
+            </button>
           </form>
         )}
       </div>
