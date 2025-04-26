@@ -54,10 +54,6 @@ const Header = () => {
                     <i className="fas fa-user"></i>
                     Dashboard
                   </Link>
-                  <Link to="/profile" className="dropdown-item">
-                    <i className="fas fa-cog"></i>
-                    Settings
-                  </Link>
                   <button onClick={handleLogout} className="dropdown-item logout">
                     <i className="fas fa-sign-out-alt"></i>
                     Logout
