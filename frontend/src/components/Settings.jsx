@@ -30,7 +30,12 @@ const Settings = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
+      console.log('Token:', token); // Debug token
+      
       const userData = await getUserProfile();
+      console.log('User Data:', userData); // Debug user data
+      
       setUser(userData);
       setProfileForm({
         firstName: userData.firstName,
@@ -40,6 +45,7 @@ const Settings = () => {
       });
       setError(null);
     } catch (err) {
+      console.error('Error fetching profile:', err); // Debug error
       setError('Failed to load user profile');
     } finally {
       setLoading(false);
