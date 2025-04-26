@@ -76,8 +76,13 @@ const Signup = () => {
         }
 
         const data = await response.json();
-        // Store the JWT token in localStorage
+        // Store the JWT token and user data in localStorage
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email
+        }));
         navigate('/dashboard');
       } catch (error) {
         console.error('Signup error:', error);

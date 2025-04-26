@@ -57,8 +57,13 @@ const Login = () => {
         }
 
         const data = await response.json();
-        // Store the JWT token in localStorage
+        // Store the JWT token and user data in localStorage
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email
+        }));
         navigate('/dashboard');
       } catch (error) {
         console.error('Login error:', error);

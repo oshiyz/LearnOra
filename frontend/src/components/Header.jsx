@@ -1,8 +1,27 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('user') || '{}');
+    setIsAuthenticated(!!token);
+    setUser(userData);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUser(null);
+    navigate('/login');
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -19,9 +38,39 @@ const Header = () => {
           <Link to="/resources">Resources</Link>
         </nav>
 
-        <div className="auth-buttons">
-          <Link to="/login" className="login-btn">Login</Link>
-          <Link to="/signup" className="signup-btn">Sign Up</Link>
+        <div className="auth-section">
+          {isAuthenticated ? (
+            <div className="user-menu">
+              <div className="user-avatar">
+                {user?.firstName?.[0]}{user?.lastName?.[0]}
+              </div>
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <span className="user-name">{user?.firstName} {user?.lastName}</span>
+                  <span className="user-email">{user?.email}</span>
+                </div>
+                <div className="dropdown-menu">
+                  <Link to="/dashboard" className="dropdown-item">
+                    <i className="fas fa-user"></i>
+                    Dashboard
+                  </Link>
+                  <Link to="/profile" className="dropdown-item">
+                    <i className="fas fa-cog"></i>
+                    Settings
+                  </Link>
+                  <button onClick={handleLogout} className="dropdown-item logout">
+                    <i className="fas fa-sign-out-alt"></i>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/login" className="login-btn">Login</Link>
+              <Link to="/signup" className="signup-btn">Sign Up</Link>
+            </div>
+          )}
         </div>
       </div>
     </header>
