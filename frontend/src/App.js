@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Settings from './components/Settings';
 import './App.css';
 
 // Add Font Awesome
@@ -26,7 +27,12 @@ function App() {
             </div>} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />}>
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<div>Overview Content</div>} />
+              <Route path="settings" element={<Settings />} />
+              {/* Add more dashboard routes as needed */}
+            </Route>
             {/* Add more routes as needed */}
           </Routes>
         </main>

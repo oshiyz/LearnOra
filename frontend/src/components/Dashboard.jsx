@@ -1,9 +1,10 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleLogout = () => {
@@ -16,27 +17,48 @@ const Dashboard = () => {
     navigate('/dashboard/overview');
   };
 
+  const handleSettingsClick = () => {
+    navigate('/dashboard/settings');
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-sidebar">
         <nav className="dashboard-nav">
-          <Link to="/dashboard/overview" className="nav-item active" onClick={handleOverviewClick}>
+          <Link 
+            to="/dashboard/overview" 
+            className={`nav-item ${location.pathname === '/dashboard/overview' ? 'active' : ''}`}
+            onClick={handleOverviewClick}
+          >
             <i className="fas fa-home"></i>
             Overview
           </Link>
-          <Link to="/dashboard/courses" className="nav-item">
+          <Link 
+            to="/dashboard/courses" 
+            className={`nav-item ${location.pathname === '/dashboard/courses' ? 'active' : ''}`}
+          >
             <i className="fas fa-book"></i>
             My Courses
           </Link>
-          <Link to="/dashboard/progress" className="nav-item">
+          <Link 
+            to="/dashboard/progress" 
+            className={`nav-item ${location.pathname === '/dashboard/progress' ? 'active' : ''}`}
+          >
             <i className="fas fa-chart-line"></i>
             Progress
           </Link>
-          <Link to="/dashboard/certificates" className="nav-item">
+          <Link 
+            to="/dashboard/certificates" 
+            className={`nav-item ${location.pathname === '/dashboard/certificates' ? 'active' : ''}`}
+          >
             <i className="fas fa-certificate"></i>
             Certificates
           </Link>
-          <Link to="/dashboard/settings" className="nav-item">
+          <Link 
+            to="/dashboard/settings" 
+            className={`nav-item ${location.pathname === '/dashboard/settings' ? 'active' : ''}`}
+            onClick={handleSettingsClick}
+          >
             <i className="fas fa-cog"></i>
             Settings
           </Link>
@@ -49,72 +71,7 @@ const Dashboard = () => {
       </div>
 
       <div className="dashboard-main">
-        <div className="dashboard-header">
-          <h2>Welcome back, {user.firstName}!</h2>
-          <div className="date">{new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}</div>
-        </div>
-
-        <div className="dashboard-content">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>Courses in Progress</h3>
-              <p className="stat-number">3</p>
-            </div>
-            <div className="stat-card">
-              <h3>Completed Courses</h3>
-              <p className="stat-number">5</p>
-            </div>
-            <div className="stat-card">
-              <h3>Certificates Earned</h3>
-              <p className="stat-number">2</p>
-            </div>
-            <div className="stat-card">
-              <h3>Learning Hours</h3>
-              <p className="stat-number">24</p>
-            </div>
-          </div>
-
-          <div className="recent-activity">
-            <h3>Recent Activity</h3>
-            <div className="activity-list">
-              <div className="activity-item">
-                <div className="activity-icon completed">
-                  <i className="fas fa-check"></i>
-                </div>
-                <div className="activity-details">
-                  <h4>Completed Python Basics</h4>
-                  <p>You completed the final quiz with 95% score</p>
-                  <span className="activity-time">2 hours ago</span>
-                </div>
-              </div>
-              <div className="activity-item">
-                <div className="activity-icon progress">
-                  <i className="fas fa-play"></i>
-                </div>
-                <div className="activity-details">
-                  <h4>Started Web Development</h4>
-                  <p>You began the HTML & CSS module</p>
-                  <span className="activity-time">Yesterday</span>
-                </div>
-              </div>
-              <div className="activity-item">
-                <div className="activity-icon achievement">
-                  <i className="fas fa-trophy"></i>
-                </div>
-                <div className="activity-details">
-                  <h4>New Achievement</h4>
-                  <p>You earned the "Quick Learner" badge</p>
-                  <span className="activity-time">2 days ago</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Outlet />
       </div>
     </div>
   );
