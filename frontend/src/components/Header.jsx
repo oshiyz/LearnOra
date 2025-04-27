@@ -1,24 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = JSON.parse(localStorage.getItem('user') || '{}');
-    setIsAuthenticated(!!token);
-    setUser(userData);
-  }, []);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setIsAuthenticated(false);
-    setUser(null);
+    logout();
     navigate('/login');
   };
 

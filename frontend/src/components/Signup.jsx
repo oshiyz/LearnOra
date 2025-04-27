@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Signup.css';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -40,8 +42,8 @@ const Signup = () => {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
     
     if (formData.password !== formData.confirmPassword) {
@@ -57,7 +59,7 @@ const Signup = () => {
     
     if (validateForm()) {
       try {
-        const response = await fetch('http://localhost:8080/api/auth/signup', {
+        const response = await fetch('http://localhost:8000/api/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -76,19 +78,17 @@ const Signup = () => {
           throw new Error(data || 'An error occurred during signup');
         }
 
-        // Store the JWT token and user data in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email
-        }));
+        // Use the login function from AuthContext
+        login(data.token, {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email
+        });
+        
         navigate('/dashboard');
       } catch (error) {
         console.error('Signup error:', error);
-        setErrors({ 
-          submit: error.message || 'An unexpected error occurred. Please try again.' 
-        });
+        setErrors({ submit: error.message || 'An unexpected error occurred. Please try again.' });
       }
     }
   };
