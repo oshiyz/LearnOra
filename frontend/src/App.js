@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
 import Login from './components/Login';
+import ForgotPassword from './components/ForgotPassword';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
 import './App.css';
@@ -53,6 +54,11 @@ function App() {
               <Route path="/login" element={
                 <PublicRoute>
                   <Login />
+                </PublicRoute>
+              } />
+              <Route path="/forgot-password" element={
+                <PublicRoute>
+                  <ForgotPassword />
                 </PublicRoute>
               } />
               <Route path="/dashboard" element={
