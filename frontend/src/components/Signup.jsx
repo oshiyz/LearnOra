@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Signup.css';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -40,8 +42,8 @@ const Signup = () => {
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
     
     if (formData.password !== formData.confirmPassword) {
@@ -70,23 +72,23 @@ const Signup = () => {
           })
         });
 
+        const data = await response.json();
+        
         if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(errorData);
+          throw new Error(data || 'An error occurred during signup');
         }
 
-        const data = await response.json();
-        // Store the JWT token and user data in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email
-        }));
+        // Use the login function from AuthContext
+        login(data.token, {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email
+        });
+        
         navigate('/dashboard');
       } catch (error) {
         console.error('Signup error:', error);
-        setErrors({ submit: error.message });
+        setErrors({ submit: error.message || 'An unexpected error occurred. Please try again.' });
       }
     }
   };
