@@ -7,8 +7,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Document(collection = "users")
 public class User {
     @Id
@@ -31,7 +33,14 @@ public class User {
     private String provider; // google, github, etc.
     private String providerId;
     
-    public User() {
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
+    
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.roles.add("ROLE_USER"); // Default role
