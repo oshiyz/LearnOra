@@ -57,7 +57,7 @@ const Signup = () => {
     
     if (validateForm()) {
       try {
-        const response = await fetch('http://localhost:8000/api/auth/signup', {
+        const response = await fetch('http://localhost:8080/api/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -70,12 +70,12 @@ const Signup = () => {
           })
         });
 
+        const data = await response.json();
+        
         if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(errorData);
+          throw new Error(data || 'An error occurred during signup');
         }
 
-        const data = await response.json();
         // Store the JWT token and user data in localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify({
@@ -86,7 +86,9 @@ const Signup = () => {
         navigate('/dashboard');
       } catch (error) {
         console.error('Signup error:', error);
-        setErrors({ submit: error.message });
+        setErrors({ 
+          submit: error.message || 'An unexpected error occurred. Please try again.' 
+        });
       }
     }
   };

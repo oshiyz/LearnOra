@@ -56,23 +56,27 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body("Error: Email is already in use!");
+        try {
+            if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+                return ResponseEntity.badRequest().body("Error: Email is already in use!");
+            }
+
+            User user = new User();
+            user.setFirstName(signUpRequest.getFirstName());
+            user.setLastName(signUpRequest.getLastName());
+            user.setEmail(signUpRequest.getEmail());
+            user.setPassword(encoder.encode(signUpRequest.getPassword()));
+
+            userRepository.save(user);
+
+            // Automatically sign in the user after successful registration
+            LoginRequest loginRequest = new LoginRequest();
+            loginRequest.setEmail(signUpRequest.getEmail());
+            loginRequest.setPassword(signUpRequest.getPassword());
+            
+            return authenticateUser(loginRequest);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
-
-        User user = new User();
-        user.setFirstName(signUpRequest.getFirstName());
-        user.setLastName(signUpRequest.getLastName());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(encoder.encode(signUpRequest.getPassword()));
-
-        userRepository.save(user);
-
-        // Automatically sign in the user after successful registration
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail(signUpRequest.getEmail());
-        loginRequest.setPassword(signUpRequest.getPassword());
-        
-        return authenticateUser(loginRequest);
     }
 } 
